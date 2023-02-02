@@ -12,11 +12,11 @@ format:
 	black **/*.py
 
 lint: ## [Local development] Run mypy, pylint and black
-	python -m mypy async_dynamic_batching
-	python -m pylint async_dynamic_batching
+	python -m mypy async_batcher
+	python -m pylint async_batcher
 
 typecheck:
-	python -m mypy async_dynamic_batching tests
+	python -m mypy async_batcher tests
 
 test:
 	python -m unittest

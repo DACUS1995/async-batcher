@@ -23,8 +23,8 @@ def find_version(*filepath):
 
 
 setup(
-    name="async_dynamic_batching",
-    version=find_version("async_dynamic_batching/__init__.py"),
+    name="async_batcher",
+    version=find_version("async_batcher/__init__.py"),
     author="Tudor Surdoiu",
     author_email="studormarian@gmail.com",
     license="MIT",
@@ -32,7 +32,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=["dyanmic-batch", "inference", "machine-learning"],
-    url="https://github.com/DACUS1995/async_dynamic_batching",
+    url="https://github.com/DACUS1995/async_batcher",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
