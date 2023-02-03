@@ -1,9 +1,3 @@
-"""
-The module registers a function that will be used to handle the model inference.
-The module will provide a function that can be called to add new inputs to be processed.
-"""
-
-
 import logging
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple
 import concurrent.futures
@@ -18,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class Batcher:
-	def __init__(self, batch_prediction_fn: Callable[..., Any], event_loop: Optional[AbstractEventLoop] = None, max_batch_size: int = 1) -> None:
+	def __init__(self, batch_prediction_fn: Callable[[List[Any]], List[Any]], event_loop: Optional[AbstractEventLoop] = None, max_batch_size: int = 1) -> None:
 		self.batch_prediction_fn = batch_prediction_fn
 		self.event_loop = event_loop
 		self.max_batch_size = max_batch_size
@@ -34,14 +28,23 @@ class Batcher:
 		return await job_future
 
 
-	def process_batch(self, batch: List[Tuple[Awaitable[str], Dict[str, str]]]) -> None:
-		jobs_future, input_contexts = zip(*batch)
-		
-		predictions = self.batch_prediction_fn(input_contexts)
+	def process_batch(self, batch: List[Tuple[Awaitable[Any], Any]]) -> None:
+		try:
+			jobs_future, input_contexts = zip(*batch)
 
-		for idx, prediction in enumerate(predictions):
-			jobs_future[idx].set_result(prediction)
-			self.queue.task_done()
+			predictions = self.batch_prediction_fn(input_contexts)
+
+			for idx, prediction in enumerate(predictions):
+				jobs_future[idx].set_result(prediction)
+		except Exception as e:
+			log.exception(f"Error processing batch: {e}")
+
+			for job_future in jobs_future:
+				job_future.set_exception(e)
+
+		finally:
+			for job_future in jobs_future:
+				self.queue.task_done()
 
 
 	async def start(self, event_loop: Optional[AbstractEventLoop] = None):
@@ -56,7 +59,7 @@ class Batcher:
 		with concurrent.futures.ThreadPoolExecutor(1) as pool:
 			while True:
 				log.debug("Starting a batch processing")
-				current_batch: List[Tuple[Awaitable[str], Dict[str, str]]] = [await self.queue.get()]
+				current_batch: List[Tuple[Awaitable[Any], Any]] = [await self.queue.get()]
 
 				while (
 					len(current_batch) < self.max_batch_size 
