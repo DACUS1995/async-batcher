@@ -15,7 +15,7 @@ After that you can simply request a prediction with the `predict` function.
 ```python
 	from async_batcher import Batcher
 
-    batcher = Batcher(
+	batcher = Batcher(
 		batch_prediction_fn=lambda x : x, 
 		event_loop=event_loop,
 		max_batch_size=max_batch_size
