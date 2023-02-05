@@ -12,13 +12,19 @@ log = logging.getLogger(__name__)
 
 
 class Batcher:
-	def __init__(self, batch_prediction_fn: Callable[[List[Any]], List[Any]], event_loop: Optional[AbstractEventLoop] = None, max_batch_size: int = 1) -> None:
+	def __init__(
+		self, 
+		batch_prediction_fn: Callable[[List[Any]], List[Any]], 
+		event_loop: Optional[AbstractEventLoop] = None, 
+		max_batch_size: int = 1,
+		max_queue_size: int = 100
+	) -> None:
 		self.batch_prediction_fn = batch_prediction_fn
 		self.event_loop = event_loop
 		self.max_batch_size = max_batch_size
 		self.wait_time = 5
 		
-		self.queue = Queue()
+		self.queue = Queue(maxsize=max_queue_size)
 
 
 	async def predict(self, input_context: Any) -> Awaitable[Any]:
