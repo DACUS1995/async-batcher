@@ -1,5 +1,5 @@
 # async-batcher
-Small package that provides zero latency cost dynamic batching for ML model serving for async endpoints handlers.
+Small package that provides a way to add zero latency cost dynamic batching for ML model serving on web frameworks.
 
 ---
 ## Usage
